@@ -1,0 +1,115 @@
+1 定制IP10.20.0.200 改固定后，固定MAC 
+
+2,修改 /etc/config/fstab，添加 overlay 配置，比如：
+mount | grep " / "
+mount -o remount,rw /
+
+config 'mount'
+        option target '/overlay'
+        option uuid 'ff313567-e9f1-5a5d-9895-3ba130b4a864'
+        option enabled '1'
+
+
+3,关闭重定向到 HTTPS
+uci set uhttpd.main.redirect_https='0'
+uci commit uhttpd
+/etc/init.d/uhttpd restart
+
+4,连接ssh接口修改
+# 假设使用 dropbear（OpenWrt 默认 SSH）
+uci set dropbear.@dropbear[0].Interface='0.0.0.0'  # IPv4
+uci set dropbear.@dropbear[0].Interface='::'       # IPv6，如果需要
+uci commit dropbear
+/etc/init.d/dropbear restart
+
+uci del dropbear.main.enable
+uci del dropbear.main.Interface
+uci del dropbear.main.RootPasswordAuth
+
+方法 2：编辑 /etc/config/dropbear，找到：
+config dropbear
+    option Interface 'lan'
+改为：
+config dropbear
+    option Interface '0.0.0.0'
+然后重启：/etc/init.d/dropbear restart
+
+方法 3：临时命令（仅当次有效）
+dropbear -p 0.0.0.0:22
+
+
+5防火墙，入站数据，出站数据，和转发数据全部为接收
+uci set firewall.@defaults[0].input='ACCEPT'
+uci set firewall.@defaults[0].output='ACCEPT'
+uci set firewall.@defaults[0].forward='ACCEPT'
+uci commit firewall
+/etc/init.d/firewall restart
+
+uci set firewall.@zone[0].name='lan'
+uci set firewall.@zone[0].input='ACCEPT'
+uci set firewall.@zone[0].output='ACCEPT'
+uci set firewall.@zone[0].forward='ACCEPT'
+uci commit firewall
+/etc/init.d/firewall restart
+
+uci set firewall.@zone[1].name='wan'
+uci set firewall.@zone[1].input='ACCEPT'
+uci set firewall.@zone[1].output='ACCEPT'
+uci set firewall.@zone[1].forward='ACCEPT'
+uci commit firewall
+/etc/init.d/firewall restart
+
+创建ubuntu用户并开起ftp服务
+opkg update
+opkg install shadow-useradd shadow-usermod shadow-passwd
+
+useradd -d /mnt/mmcblk0p1 -s /bin/false -M ubuntu
+passwd ubuntu
+chown -R ubuntu:ubuntu /mnt/mmcblk0p1
+chmod -R 777 /mnt/mmcblk0p1
+
+然后配置 /etc/vsftpd.conf：
+listen=YES
+anonymous_enable=NO
+local_enable=YES
+write_enable=YES
+local_root=/mnt/mmcbsd
+chroot_local_user=YES
+
+/etc/init.d/vsftpd enable
+/etc/init.d/vsftpd start
+
+
+
+
+在 OpenWrt 上让硬盘自动休眠，主要靠 hdparm 或 sdparm 来控制 SATA/USB 硬盘的省电模式。下面给你完整步骤
+opkg update
+opkg install hdparm
+2️⃣ 查看硬盘信息
+lsblk
+# 或者
+cat /proc/partitions
+
+找出硬盘设备名，例如 /dev/sda1 设置自动休眠（spindown）
+# 设置 10 分钟无操作自动休眠
+hdparm -S 120 /dev/sda1
+说明：
+-S 120 → 单位为 5 秒 × 120 = 600 秒 = 10 分钟
+/dev/sda → 硬盘设备
+
+设置电源管理模式
+# 启用高级电源管理（0-255）
+hdparm -B 127 /dev/sda1
+1-127 → 省电模式
+128-254 → 性能模式
+255 → 禁用自动休眠
+hdparm -B 127 -S 120 /dev/sda1
+
+永久生效
+编辑 /etc/rc.local，在 exit 0 之前添加：
+hdparm -B 127 -S 120 /dev/sda1
+
+测试硬盘休眠
+hdparm -C /dev/sda1
+输出 standby 表示硬盘已进入休眠。
+
