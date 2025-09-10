@@ -1,0 +1,3 @@
+apt install openvpn
+systemctl enable openvpn@LTopcone.conf
+systemctl start openvpn@LTopcone
