@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<html lang="zh-cn">
+<!--<![endif]-->
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="机顶盒 Linux 指南">
+    <meta name="author" content="teasiu">
+    <meta name="keywords" content="nas,hisilicon">
+
+    <title>海思机顶盒 NAS</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/stroke.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/animate.css">
+    <link rel="stylesheet" type="text/css" href="css/prettyPhoto.css">
+    <link rel="stylesheet" type="text/css" href="css/style1.css">
+
+    <link rel="stylesheet" type="text/css" href="js/syntax-highlighter/styles/shCore.css" media="all">
+    <link rel="stylesheet" type="text/css" href="js/syntax-highlighter/styles/shThemeRDark.css" media="all">
+
+    <!-- CUSTOM -->
+    <link rel="stylesheet" type="text/css" href="css/custom.css">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+    <button onclick="topFunction()" id="myBtn" title="返回顶部"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+    <?php
+	$lanip=$_SERVER["HTTP_HOST"];
+    ?>
+    <?php
+	$nasversion=shell_exec("cat /etc/nasversion 2>&1");
+    ?>
+    <?php
+	$chipname=shell_exec("cat /etc/regname 2>&1");
+    ?>
+    <?php
+	$subdomain=shell_exec("cat /etc/name 2>&1");
+    ?>
+	<?php
+	$file_path = '/etc/zhinan/zhinan';
+	// 检查文件是否存在
+	if (!file_exists($file_path)) {
+	// 如果文件不存在
+	file_put_contents($file_path, ''); // 创建一个空文件
+	} 
+	?>
+    <script>
+        var mybutton = document.getElementById("myBtn");
+        window.onscroll = function() {scrollFunction()};
+        function scrollFunction() {
+            if (document.body.scrollTop > 1000 || document.documentElement.scrollTop > 1000) {
+                mybutton.style.display = "block";
+            } else {
+                mybutton.style.display = "none";
+            }
+        }
+        function topFunction() {
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+            document.documentElement.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelector('#mode').addEventListener('click',()=>{
+                document.querySelector('html').classList.toggle('dark');
+            })
+        });
+
+
+    </script>
+    <script type="text/javascript">
+	function disp_alert()
+	{
+	window.open("https://bbs.histb.com");
+	}
+	function dl_alert()
+	{
+	window.open("https://www.ecoo.top");
+	}
+    </script>
+    <div id="wrapper">
+
+        <div id="mode" >
+            <div class="dark">
+                <svg aria-hidden="true" viewBox="0 0 512 512">
+                    <title>lightmode</title>
+                    <path fill="currentColor" d="M256 160c-52.9 0-96 43.1-96 96s43.1 96 96 96 96-43.1 96-96-43.1-96-96-96zm246.4 80.5l-94.7-47.3 33.5-100.4c4.5-13.6-8.4-26.5-21.9-21.9l-100.4 33.5-47.4-94.8c-6.4-12.8-24.6-12.8-31 0l-47.3 94.7L92.7 70.8c-13.6-4.5-26.5 8.4-21.9 21.9l33.5 100.4-94.7 47.4c-12.8 6.4-12.8 24.6 0 31l94.7 47.3-33.5 100.5c-4.5 13.6 8.4 26.5 21.9 21.9l100.4-33.5 47.3 94.7c6.4 12.8 24.6 12.8 31 0l47.3-94.7 100.4 33.5c13.6 4.5 26.5-8.4 21.9-21.9l-33.5-100.4 94.7-47.3c13-6.5 13-24.7.2-31.1zm-155.9 106c-49.9 49.9-131.1 49.9-181 0-49.9-49.9-49.9-131.1 0-181 49.9-49.9 131.1-49.9 181 0 49.9 49.9 49.9 131.1 0 181z"></path>
+                </svg>
+            </div>
+            <div class="light">
+                <svg aria-hidden="true" viewBox="0 0 512 512">
+                    <title>darkmode</title>
+                    <path fill="currentColor" d="M283.211 512c78.962 0 151.079-35.925 198.857-94.792 7.068-8.708-.639-21.43-11.562-19.35-124.203 23.654-238.262-71.576-238.262-196.954 0-72.222 38.662-138.635 101.498-174.394 9.686-5.512 7.25-20.197-3.756-22.23A258.156 258.156 0 0 0 283.211 0c-141.309 0-256 114.511-256 256 0 141.309 114.511 256 256 256z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div class="container">
+
+            <section id="top" class="section docs-heading">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="big-title text-center">
+                            <img src="/img/hinas3x7.png"><h1>海纳思系统使用指南</h1>
+                            <p class="lead">我是小盒子, 也是大世界</p>
+                        </div>
+                        <!-- end title -->
+                    </div>
+                    <!-- end 12 -->
+                </div>
+                <!-- end row -->
+
+                <hr>
+
+            </section>
+            <!-- end section -->
+
+            <div class="row">
+
+                <div class="col-md-3">
+                    <nav class="docs-sidebar" data-spy="affix" data-offset-top="300" data-offset-bottom="200" role="navigation">
+                        <ul class="nav">
+                            <li><a href="#line1">开始使用</a></li>
+                            <li><a href="#line2">管理服务器文档</a></li>
+                            <li><a href="#line3">FRP 内网穿透的使用</a></li>
+                            <li><a href="#line4">P2P 内网穿透组网有偿服务</a></li>
+                            <li><a href="#line5">创建个人博客或家庭公告栏</a></li>
+                            <li><a href="#line6">安装和设置网络共享</a></li>
+                            <li><a href="#line7">更多功能与技巧 ...</a>
+                                <ul class="nav">
+                                    <li><a href="#line7_1">NFS 服务器</a></li>
+                                    <li><a href="#line7_2">更改盒子的 MAC 地址</a></li>
+                                    <li><a href="#line7_3">设置静态IP</a></li>
+                                    <li><a href="#line7_4">WebDAV 服务器</a></li>
+                                    <li><a href="#line7_5">增加 Nginx 模块自建站</a></li>
+                                    <li><a href="#line7_6">安装私人 Git 仓库</a></li>
+                                    <li><a href="#line7_7">局域网音视频广播</a></li>
+                                    <li><a href="#line7_8">DDNS 定时更新脚本</a></li>
+                                    <li><a href="#line7_9">安装无盘网络启动</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#line8">挂载外置硬盘的支持</a></li>
+                            <li><a href="#line9">直链下载与 BT 种子下载</a></li>
+                            <li><a href="#line10">Docker 容器使用基础教程</a></li>
+                            <li><a href="#line11">本地网盘 h5ai</a></li>
+                            <li><a href="#line12">文件管理器 FileBrowser</a></li>
+                            <li><a href="#line13">Alist云盘平台</a></li>
+                            <li><a href="#line14">觅思文档平台</a></li>
+                            <li><a href="#line15">Socks5 服务器使用</a></li>
+                            <li><a href="#line16">系统和软件程序源更新</a></li>
+                            <li><a href="#line17">版本更新日志 (Changelog)</a></li>
+                            <li><a href="#line18">著作版权声明</a></li>
+                        </ul>
+                    </nav >
+                </div>
+                <div class="col-md-9">
+                    <section class="welcome">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <?php
+                                    $arch=shell_exec("getconf LONG_BIT");
+                                    if ($arch == 64) {
+                                        echo '<h2 class="dark-text">基本信息 arm64位系统<hr></h2>';
+                                    } else {
+                                        echo '<h2 class="dark-text">基本信息<hr></h2>';
+                                    }
+                                ?>
+                                <div class="row">
+
+                                    <div class="col-md-12 full">
+                                        <div class="intro1">
+                                            <ul>
+<?php
+// 使用 shell_exec() 执行 hostname -I 命令并获取IP地址
+$$ipaddress = shell_exec("hostname -I | awk '{print $1}'");
+
+// 去除可能的换行符或空格
+$$ipaddress = trim($$ipaddress);
+
+// 执行Shell命令获取温度信息
+// 执行新的命令获取原始温度值（例如 47000）
+$temp_raw = shell_exec("cat /sys/class/thermal/thermal_zone0/temp");
+
+// 在PHP中进行计算，这样更安全、更清晰
+$temp = floatval($temp_raw) / 1000;
+
+
+
+?>
+                                                <li><strong>芯片型号 : </strong><?php echo $chipname ?> </li>
+												<li><strong>本机IP：</strong> <a href="http://<?php echo $$ipaddress; ?>/ip.php">http://<?php echo $$ipaddress; ?></a></li>
+                                                <li><strong>本机外网地址：</strong><a href="https://<?php echo trim($subdomain); ?>">https://<?php echo trim($subdomain); ?></a></li>
+<?php $output = shell_exec("ip link|grep wlan0");if($output!=""){echo "<li><strong>自定义开启Wifi热点 : </strong><a href=http://$lanip/wifi.php>开启WIFI热点</a></li>";} ?>
+                                                <li><strong>系统版本号 : </strong><?php echo $nasversion ?>   </li>
+												<li><strong>初始默认登陆账号和密码 :</strong>账号 root 密码 ecoo1234 </li>
+												<li><strong>当前设备温度：</strong><?php echo " " . number_format($temp, 1) . "°C" ?>  </li>
+                                                <li><strong>版权和声明 : </strong> <a href="https://<?php echo $subdomain ?>" target="_blank">系作者个人开发的Linux服务器核心技术系统，任何人都可以无偿使用，但不得用于违法用途，未经作者授权不得用于盈利售卖，不得用于衍生的任何软件变相收费。否则将视为侵权行为！一旦刷机，即视为同意上述协议。NAS内置的软件及开通的服务仅仅用于学习研究，不得用于任何违法用途。如果你是在不良奸商手上购买, 请尝试协商退款或给与差评!<br></a></li>
+                                                <li><strong>是的, 你的感觉没错, 这是一个小白也会使用的机顶盒服务器全部开源任你白嫖! </strong></li>
+                                            </ul>
+                                        </div>
+
+                                        <hr>
+                                        <div>
+                                            <p>盒子实测耗电仅约3瓦, 一杯奶茶的成本可以养它一年 (24h * 365天)!
+                                                <strong>就是这么优秀!</strong>
+                                                <br> 盒子运行 Linux Ubuntu 20.04.6 LTS 服务器系统, 同时配置了适量的常用软件, 完全可以满足个人家庭需求
+                                            </p>
+
+                                            <p>WOO, 动手打造属于你的空间吧! </p>
+
+                                            <h4>常用功能按钮</h4>
+                                            <p>点击打开进行日常维护和使用.</p>
+                                            <ol>
+                                                <li><button type="button"><a target="_blank" href="http://<?php echo $lanip ?>:7681">管理终端</a></button>    <button type="button" onclick="disp_alert()">研发者论坛</button>    <button type="button" onclick="dl_alert()">系统更新</button>    <button type="button"><a target="_blank" href="/files">网盘系统</a></button>    <button type="button"><a target="_blank" href="/blog">个人博客</a></button>    <button type="button"><a target="_blank" href="http://<?php echo $lanip ?>:9091">BT下载器</a></button>     <button type="button"><a target="_blank" href="/ariang">直链下载器</a></button>    <button type="button"><a target="_blank" href="http://<?php echo $lanip ?>:6008/changepassword.php">忘记密码</a></button><button type="button"><a target="_blank" href="http://<?php echo $lanip ?>:6008/wifi.php">开启热点</a></button></li>
+                                            </ol>
+                                            <div class="intro2 clearfix">
+                                                <p><i class="fa fa-exclamation-triangle"></i> 如遇到不慎操作失误或者安装了自己不清楚的软件, 可以使用还原备份系统的命令: <a style="background:#000; color:#fff"> &nbsp; recoverbackup &nbsp; </a>
+                                                    <br> 需要等待约 5 分钟左右, 系统将自动覆盖根分区, 根分区内的数据将全部被原备份系统清除并覆盖, 请做好必要的资料保存, 还原后外网访问的网址将重新随机分配
+                                                </p>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!-- end row -->
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="line1" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">开始使用<hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p>建议使用 Edge、Chrome、火狐浏览器等访问和管理机顶盒 <a target="_blank" href="http://<?php echo $lanip ?>:7681">管理终端</a>, 或者使用 Windows 10 的命令提示符、<acronym title="没有？百度百度!">SSH终端管理器</acronym>等登陆后台。</p> 
+                                <a target="_blank" href="https://www.ecoo.top/docs/tutorial-extras/start"><h4>点击我阅读：首次进入系统要做的第一件事（登录后台，密码输入，密码修改）</h4></a>
+				 <h4>我能做什么</h4>
+                                <p>1. linux服务器，可以作为你学习linux系统的一个样板
+                                <br>2. 盒子支持 docker 程序，你可以使用 docker 扩展你的需求
+                                <br>3. 用盒子作为自己家用的文件存储器，文件共享器
+                                <br>4. 可以把盒子作为内网穿透跳板机，或 p2p 把家里的设备跟异地的设备网络组成同一个内网
+                                <br>5. 可以用盒子的博客系统记录你学习和生活的点点滴滴，既能分享，又能保留历史记忆
+                                <br>6. 可以用盒子播放影音，视频，并推送到局域网内的电视
+                                <br>7. 可以用盒子系统自带的插件作为一个下载机，随时随地下载并存储在本地
+                                <br>8. 可以用盒子做个人网站个人数据库前端或后端
+                                <br>9. 可以做自己的 git 仓库，协助你建立或转存个人或群体仓库
+                                <br>10. 可以建立自己的 socks 网络中转，安全地科学使用网络。
+                                <br>11. 还可以做更多事情，等待你的发掘。或加入用户微信群交流，或加入社区交流。
+
+                                </p>
+                                <h4>常用的 Linux 命令</h4>
+                                <pre class="brush: html; highlight: [2,4]">
+					ssh root@192.168.x.x			终端登陆服务器
+					df -H							查看磁盘使用详情
+					ls -al (ll)						查看当前目录下的所有文件
+					apt update && apt upgrade -y	更新官方源已安装的软件
+					cd /home/ubuntu					进入 /home/ubuntu 目录位置
+					wget http://xxx.com/xxx.xxx		下载网络链接文件到当前文件夹位置
+					passwd root						修改当前系统账号 root 的密码, 需要重复输入两次密码
+
+                                </pre>
+
+                                <p>系统内置软件一键安装脚本, 直接输入以下命令即可安装配置, 即装即用。部分脚本安装位置在 /opt/ 路径下，如有需要，请自行更改脚本。</p>
+
+                                <pre class="brush: html">
+		                    	install-qinglong.sh		安装 Docker 应用: 青龙面板
+		                    	install-kod.sh			安装 可道云 程序
+		                    	install-v2ray.sh		安装 Socks5 服务器
+		                    	install-portainer.sh	安装 Docker 容器管理面板
+		                    	install-gitweb.sh		安装和打造个人的 Git 仓库
+		                    	install-homeassistant.sh	安装智能家居控制面板
+		                    	install-homebridge.sh	安装小米智能家居
+		                    	install-jellyfin.sh		安装电影播放削刮器
+		                    	install-casaos.sh		安装开源 casaos 系统
+		                    	install-wordpress.sh		著名的wp个人博客网站系统
+		                    	install-photoalbum.sh		简单易用的个人相册
+		                    	format-disk.sh			一键帮你格式化磁盘并挂载到 /mnt/ 下面
+		                    	hinas-clear				卸载清除上面安装的程序，输入 hinas-clear -h 查看帮助
+                         </pre>
+
+                                <p>使用技巧： vi 命令对文档进行编辑;</p>
+
+                                <pre class="brush: html">
+								vi abc 打开和进入 abc 文档
+								提示: 连续按下两下 dd 即可删除光标所在的行
+								按一次键盘的 Insert 或者 i 按键, 即可进入当前文件的编辑模式
+								键盘上下左右移动光标,
+								修改编辑完毕, 按一次 Esc 按键退出编辑模式,
+								然后输入 :wq 这三个符号, 回车即可保存并退出文档
+								若不保存当前修改, 即输入 :q! 这三个符号,回车即可直接退出文档编辑
+								</pre>
+                         <p>如果你希望更深入地学习，欢迎观看<b><strong>视频教程</strong></b>：
+                         <br><a target="_blank" href="https://www.ecoo.top/docs/tutorial-extras/videocoach">https://www.ecoo.top/docs/tutorial-extras/videocoach</a> </p><hr>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+
+                    <section id="line2" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">管理服务器文档 <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="intro2 clearfix">
+                            <p><i class="fa fa-wordpress"></i> 可以采用 FTP 或 SCP 或 SSH 客户端等方式对服务器文档进行管理, 上传和下载
+                                <br> 初始账号: ubuntu 密码: ecoo1234</a> </p>
+                        </div>
+
+                        <hr>
+
+                        <h4>具体使用指南</h4>
+
+                        <p>建议使用<a target="_blank" href="https://www.filezilla.cn/download/client">FileZilla</a>或者<a target="_blank" href="https://dl.histb.com/#/list/189cn/82531180155783956">MobaXterm SSH客户端</a>进行管理</p>
+
+                        <a href="ftp.html" class="btn btn-primary">操作教程</a> <a href="https://bbs.histb.com" class="btn btn-info">分享和答疑</a>
+                        <hr>
+
+                    </section>
+                    <!-- end section -->
+
+                    <section id="line3" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">FRP 内网穿透的使用 <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <h4>服务器采用 FRP 开源软件进行内网穿透</h4>
+
+                        <p>已经搭建了一个位于国外的服务器作为 FRP 的服务端, 并自动分配给盒子一个随机的二级域名, 你可以轻松的在外面访问盒子首页<strong>本盒子外网网址 : </strong><a href="https://<?php echo trim($subdomain); ?>.mnin.cn">https://<?php echo trim($subdomain); ?>.mnin.cn</a></p>
+
+                        <a href="http://mnin.cn" class="btn btn-primary">服务器详情</a> <a href="https://www.ecoo.top/docs/nas-skill/frpc" class="btn btn-info">分享与答疑</a>
+
+                        <hr>
+
+                        <h4>使用场景</h4>
+
+                        <p>修改和配置 /etc/frp/frpc.toml 文档</p>
+                        <p>把盒子放在家里, 公司, 或学校, 让你的盒子变身为一个比花生棒更加强大的跳板机!</p>
+                        <p>专业版用户，直接在终端输入 kaitong-frp 命令即可开通外网地址访问。</p>
+                        <p>单独购买用户，在终端输入 nasupdate 后，将识别码告知群主，几分钟后，输入 kaitong-frp 命令即可开通外网地址访问。</p>
+                        <pre class="brush: html">
+                        # /etc/frp/frpc.toml
+                        # 重要：请不要复制所有 # 号后面的注释文字
+                        #此处省略密钥和服务器信息
+                        ... ...
+						[[proxies]]
+						name = "ssh-21625"
+						type = "tcp"
+						localIP = "127.0.0.1"
+						localPort = 22
+						
+						[[proxies]]
+						name = "web-zhangsan"  #必须保证唯一，不能和他人重复
+						type = "http"
+						localPort = 80
+						customDomains = ["www.yourdomain.com"]  #你自己的域名解析至mnin.cn
+
+						[[proxies]]
+						name = "web-zhangsan2"
+						type = "http"
+						localPort = 8080
+						customDomains = ["www.yourdomain2.com"]
+						
+
+                        </pre>
+                        <p>检查自己修改的配置是否成功(多人使用, 只能使用唯一的xxx名称): </p>
+                        <pre class="brush: html">
+                        systemctl stop frpc			#先停止frp客户端的服务
+                        frpc -c /etc/frp/frpc.toml		#试运行上面修改过的配置
+                        #最后, 如果出现的都是蓝色的并且都显示success的结果, 则ok,
+                        #否则重新修改xxx的名称避免和其他人的设置重复
+                        #按ctrl+c结束命令
+                        systemctl restart frpc		#重启服务
+                        </pre>
+                        <hr>
+
+                    </section>
+                    <!-- end section -->
+
+					<section id="line4" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">P2P 内网穿透组网有偿服务 <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p>内网穿透即在局域网外部通过穿透技术直接访问局域网的设备，
+                                <br>目前现有穿透技术有很多种，其中有的需要限定端口，有的流量必须通过服务器转发。
+                                <br>本系统使用的穿透技术均无上述限制：
+                                <br>1、<b>可以访问穿透设备的所有端口</b>。
+                                <br>&nbsp;&nbsp;&emsp;只需要使用穿透技术分配的专用IP地址，就能如同在局域网访问一样，互相访问穿透设备的所有端口，无任何限制。
+                                <br>2、<b>使用P2P的点对点通讯技术</b>。
+                                <br>&nbsp;&nbsp;&emsp;客户端之间通讯默认使用直连通讯，无需经过服务器转发，大大加快设备间的传输速度，降低延迟，同时不受服务器限制传输带宽。
+                                <br>3、<b>实现局域网打通</b>。
+                                <br>&nbsp;&nbsp;&emsp;即把客户端所在的局域网全部打通，其他局域网的客户端均可通过该被打通的客户端访问该客户端所在局域网的其他设备，而不仅仅是客户端设备，从此各地的局域网对彼此开放，实现互联互通。
+                                <br>&nbsp;&nbsp;&emsp;如需其他客户端所在局域网的设备也能如同客户端一样访问被穿透的客户端局域网，则需要在各自的网络路由器上设置<b>静态路由</b>。
+                                </p>
+                                <a href="p2p.html" class="btn btn-primary" target="_blank">开通教程</a>
+                                <hr>
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+
+                    <section id="line5" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">创建个人博客或家庭公告栏 <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+
+                            <div class="col-md-12">
+                                <p>点击打开<a target="_blank" href="http://<?php echo $lanip ?>/blog">个人博客</a>, 点击“我准备好了, 开始下一步", 输入新设登陆的密码, 点击“确认, 开始安装"
+                                <br>博客的用途非常广泛, 你甚至可以机智地把它当成家庭公告板提醒家里人上去写留言;
+                                <br>也可以当成自己的网络笔记本, 粘贴上你在网络上学习过的代码, 永久保留备查;
+                                <br>还可以把外网网址公开给私人好友, 分享你的能量</p>
+
+			     <h4>保存和重装后还原博客数据库 </h4>
+			         <p>在 recoverbackup 重装系统之前, 一定要备份博客的数据库
+			         <br>数据库位置路径在 /var/www/html/blog/usr/623d62d5e5e96.db db 名称可能会不相同
+			         <br>操作如下: </p>
+			     <pre class="brush: html">
+			     mkdir -p /mnt/sda1/blog-data			在U盘建立数据库一个文件夹
+			     chmod -R 777 /mnt/sda1/blog-data		给文件夹赋予权限
+			     cp /var/www/html/blog/usr/*.db /mnt/sda1/blog-data/myblog.db
+			     把数据库文档移出来到U盘指定目录并重命名为 myblog.db
+			     </pre>
+
+			     	<p>下次重新安装博客时, 点击 "我准备好了, 开始下一步", 数据库文件路径输入 /mnt/sda1/blog-data/myblog.db 然后无需设置密码直接点击 "确认, 开始安装", 然后点击 "使用原数据" 这样就把数据还原了, 打开还是原来一样的所有文章。
+			     	<br>注意: 如果你常常使用的是外网网址登陆博客, 请在后台设置里填写正确的外网网址。
+			     	<br>否则首页将会造成js错乱而影响访问。（可用内网 IP 地址登陆去修改）</p>
+                            </div>
+
+
+                        </div>
+                        <hr>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+
+                    <section id="line6" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">如何设置网络文档共享<hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+
+                            <div class="col-md-12">
+                                <p>系统已经预先安装好 Samba 并自动共享 /home/ubuntu/downloads 文件夹,
+                                <br>在文件管理器输入: \\<?php echo $lanip ?> 即可访问
+                                <br>如需要登陆密码，请输入默认内建的 samba 用户名 ubuntu 密码 ecoo1234 </p>
+                            </div>
+                            <h4>修改配置文档, 把U盘的文件夹共享出来 </h4>
+                            <pre class="brush: html">
+			     mkdir -p /mnt/sda1/usb-share		在U盘建立一个文件夹 usb-share (当然, 你也可以建立其他文件夹)
+			     chmod -R 777 /mnt/sda1/usb-share	给这个文件夹赋予权限
+			     </pre>
+			     <p>输入命令 vi /etc/samba/smb.conf 修改配置, 在结尾下面添加如下代码: </p>
+			     <pre class="brush: html">
+			     [usb-shares]
+				path = /mnt/sda1/usb-share
+				read only = no
+				guest ok = yes
+				create mask = 0777
+				directory mask = 0777
+				browseable = yes
+			     </pre>
+			     <pre class="brush: html">
+			    systemctl restart smbd		修改完成后需要重启 Samba 服务
+			    smbpasswd -a ubuntu			修改内建 ubuntu 用户的密码（自定）
+			     </pre>
+			     <p>最后, 在文件管理器输入: \\<?php echo $lanip ?> 即可访问在网上邻居也可以找到这个共享文件夹了</p>
+			      <p>如果你希望更深入地学习，欢迎观看视频教程：
+                         <br><a target="_blank" href="https://www.ecoo.top/videos-coach/">https://www.ecoo.top/videos-coach/</a></p>
+			     <hr>
+
+
+                        </div>
+
+
+                    </section>
+                    <!-- end section -->
+
+                    <section id="line7" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">其他功能与使用技巧 <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href="images/upload/nfs.jpg" data-rel="prettyPhoto"><img src="images/upload/nfs.jpg" alt="" class="img-responsive img-thumbnail"></a>
+                            </div>
+
+                            <div class="col-md-8">
+                                <h4 id="line7_1">NFS服务器 - </h4>
+                                <p>系统已内置 NFS 文件服务器
+                                <br>初始地址为 /home/ubuntu/downloads
+                                <br><pre class="brush: html">
+                                vi /etc/exports		# 编辑配置文件, 加入以下内容 (请根据实际情况修改)
+                                /home/ubuntu/downloads *(rw,sync,no_root_squash,no_subtree_check)
+                                /mnt/sda1 *(rw,sync,no_root_squash,no_subtree_check)
+                                exportfs			# 运行这个命令使配置生效
+                                </pre>
+                                </p>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href="images/upload/mac.jpg" data-rel="prettyPhoto"><img src="images/upload/mac.jpg" alt="" class="img-responsive img-thumbnail"></a>
+                            </div>
+
+                            <div class="col-md-8">
+                                <h4 id="line7_2">更改盒子网口 MAC 地址 - </h4>
+                                <p>
+                                点击链接进入修改页面：<button type="button"><a target="_blank" href="http://<?php echo $lanip ?>:6008/macedit.php">网口 MAC 修改</a></button>
+                                <br>注意：建议你按照盒子背后标签的 MAC 地址来修改
+                                <br>否则将可能出现随机现象造成 IP 地址变动
+                                <br>
+                                <br>或者另外一种办法手动更改MAC地址：
+                                <br>vi /etc/network/interfaces.d/eth0	# 修改配置文件如下示例
+                                <br><pre class="brush: html">
+									auto eth0
+									iface eth0 inet dhcp
+									pre-up ifconfig eth0 hw ether 00:11:22:33:44:66
+									</pre>
+									
+								<br>新增随机一键更改MAC地址：
+                                <br><pre class="brush: html">
+									chgmac-any.sh
+									</pre>
+                                </p>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href="images/upload/ip.jpg" data-rel="prettyPhoto"><img src="images/upload/ip.jpg" alt="" class="img-responsive img-thumbnail"></a>
+                            </div>
+
+                            <div class="col-md-8">
+                                <h4 id="line7_3">设置静态IP - </h4>
+                                <p>vi /etc/network/interfaces.d/eth0	# 修改配置文件
+                                <br>替换为下面的内容 (网关和IP必须按实际情况自行修改)
+                                <br>否则你将可能不得不重新刷机，承担修复 IP 无法访问的风险。
+                                </p>
+                                <p><pre class="brush: html">
+					auto eth0
+					iface eth0 inet static
+					address 192.168.1.10
+					network 192.168.1.0
+					netmask 255.255.255.0
+					broadcast 192.168.1.255
+					gateway 192.168.1.1
+					dns-nameservers 192.168.1.1
+					pre-up ifconfig eth0 hw ether 00:11:22:33:44:66
+					</pre>
+					</p>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href="images/upload/webdav.jpg" data-rel="prettyPhoto"><img src="images/upload/webdav.jpg" alt="" class="img-responsive img-thumbnail"></a>
+                            </div>
+
+                            <div class="col-md-8">
+                                <h4 id="line7_4">WebDAV 服务器 - </h4>
+                                <p>已经内置 WebDAV 服务在 8081 端口, 默认文档位置在 /home/ubuntu/webdav
+                                <br>修改默认文档位置 vi /etc/nginx/sites-available/nginx_webdav
+                                <br>修改后输入 nginx -s reload 重启服务
+                                <br><button type="button"><a target="_blank" href="http://<?php echo $lanip ?>:8081">http://<?php echo $lanip ?>:8081</a></button>
+                                <br>Windwows 映射 WebDAV 目录
+                                <br>开启服务此电脑右键-管理-服务-WebClient 设为自动, 停止服务
+				 <br>修改注册表
+					<br>修改注册表使得WIN同时支持http和https:
+				<br>定位到
+				<br>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
+				<br>把BasicAuthLevel 值改成2, 即同时支持http和https, 默认只支持https, 然后重启服务:
+				<br>磁盘映射
+				<br>在Windows资源管理器空白处右键, 选添加一个网络位置
+				<br>填写正确的连接加端口号, 默认登陆用户名和密码 <strong>admin admin</strong>
+				<br><pre class="brush: html">
+				修改用户名和密码:
+				echo -n 'admin:' | tee /etc/nginx/passwords-webdav.list
+				openssl passwd -apr1 | tee -a /etc/nginx/passwords-webdav.list
+				nginx -s reload
+				</pre>
+                                </p>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href="images/upload/nginx.jpg" data-rel="prettyPhoto"><img src="images/upload/nginx.jpg" alt="" class="img-responsive img-thumbnail"></a>
+                            </div>
+
+                            <div class="col-md-8">
+                                <h4 id="line7_5">增加自建站 Nginx 模块 - </h4>
+                                <p><strong>我就建个站</strong>
+                                <br>vi /etc/nginx/sites-available/mywebsite
+                                <br>复制下面代码粘贴
+                                <pre class="brush: html">
+				server {
+					listen 8088;
+					listen [::]:8088;
+					server_name example.com;
+					root /var/www/html/example.com;
+					index index.html;
+					location / {
+					try_files $uri $uri/ =404;
+					}
+				}
+                                </pre>
+                                <br><pre class="brush: html">
+                                ln -sf /etc/nginx/sites-{available,enabled}/mywebsite
+                                nginx -s reload
+                                最后运行上面两句使能
+                                </pre>
+                                把网站文档放在 /var/www/html/example.com
+                                你就可以打开 IP:8088 访问你自己的网站了
+                                这个例子只是简单的模板, 详细情形请搜索学习
+                                </p>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href="images/upload/git.jpg" data-rel="prettyPhoto"><img src="images/upload/git.jpg" alt="" class="img-responsive img-thumbnail"></a>
+                            </div>
+
+                            <div class="col-md-8">
+                                <h4 id="line7_6">安装私人 Git 仓库 - </h4>
+                                <p>首先要挂载U盘, 并且在U盘创建 gitweb 文件夹并赋予 777 权限
+                                <br>命令行输入 apt update 然后 apt install gitweb-histb -y
+                                <br>安装完成后, 浏览 <a target="_blank" href="http://<?php echo $lanip ?>:8011">http://<?php echo $lanip ?>:8011</a> 即可管理你的 Git 仓库
+                                <br><pre class="brush: html">
+                                cd /mnt/sda1/gitweb				# 进入U盘
+                                # 克隆一个 Github 上的库并建立裸库在服务器上
+                                git clone --bare https://github.com/xxx/xxx.git xxx.git
+                                cd xxx.git						# 进入该仓库
+                                touch git-daemon-export-ok
+                                echo "xxx仓库" > description
+                                # 这样你就可以看到这个转移过来的仓库了
+                                # 建立一个新的空仓库:
+                                cd /mnt/sda1/gitweb
+                                mkdir xxx.git
+                                cd xxx.git
+                                git init --bare
+                                touch git-daemon-export-ok
+                                echo "我的第一个新仓库" > description
+                                </pre></p>
+                                <p>客户端克隆本服仓库命令:
+                                <br><pre class="brush: html">
+                                git clone root@192.168.xx.xx:/mnt/sda1/gitweb/xxx.git
+                                密码与系统相同
+                                </pre>
+                                </p>
+
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href="images/upload/minidlna.jpg" data-rel="prettyPhoto"><img src="images/upload/minidlna.jpg" alt="" class="img-responsive img-thumbnail"></a>
+                            </div>
+
+                            <div class="col-md-8">
+                                <h4 id="line7_7">MiniDLNA 局域网音视频广播 - </h4>
+                                <br><pre class="brush: html">
+                                apt install minidlna			# 安装 MiniDLNA 软件
+                                vi /etc/minidlna.conf			# 修改配置文件
+                                将 media_dir=/var/lib/minidlna 修改为 media_dir=/mnt/sda1/minidlna
+                                mkdir /mnt/sda1/minidlna		# 在U盘创建目录
+                                chmod 777 -R /mnt/sda1/minidlna # 赋予权限
+                                </pre></p>
+								<p>在该文件夹下存放图片或音视频 MP3、MP4、PNG、JPG 等格式的文件
+                                <br>你就可以在局域网下的电脑、手机、电视等智能终端进行播放了
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href="images/upload/qd.jpg" data-rel="prettyPhoto"><img src="images/upload/qd.jpg" alt="" class="img-responsive img-thumbnail"></a>
+                            </div>
+
+                            <div class="col-md-8">
+                                <h4 id="line7_8">DDNS 解析自动更新脚本教程 - </h4>
+                                <p><strong>阿里域名 DDNS ipv4解析更新</strong>
+                                <br><a href="/ddns/aliddns.html" target="_blank">点击直达</a>
+                                </p>
+                                <p><strong>花生壳域名 DDNS ipv4解析更新</strong>
+                                <br><a href="/ddns/orayddns.html" target="_blank">点击直达</a>
+                                </p>
+                                <p><strong>Noip.com域名 DDNS ipv4解析更新</strong>
+                                <br><a href="/ddns/noipddns.html" target="_blank">点击直达</a>
+                                </p>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href="images/upload/qd.jpg" data-rel="prettyPhoto"><img src="images/upload/qd.jpg" alt="" class="img-responsive img-thumbnail"></a>
+                            </div>
+
+                            <div class="col-md-8">
+                                <h4 id="line7_9">安装无盘网络启动 - </h4>
+                                <p>嗯, 这个在下一次更新推出, 期待吧</p>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+
+                    <section id="line8" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">挂载外置硬盘或者U盘设备<hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p>系统支持自动挂载外置设备, 插入 U盘 或移动硬盘即可自动挂载到 /mnt 下, 插入 TF卡将自动挂载到 /mnt/mmcblk1p1</a></p>
+                                <ul>
+									<li>* <strong>如果你不会手动分区命令，建议使用以下一键命令全搞定:</strong></li>
+									<li>* <strong>一键命令(可重复运行)：format-disk.sh</strong></li>
+                                    <li>* 如果没有显示设备请尝试重新插拨, 查看是否自动挂载</li>
+                                    <li>* 部分机型可能需要插上USB口以后热启动上电才会被盒子识别</li>
+									<li>* <strong>连接外置 3.5吋 移动硬盘盒请确保供电正常</strong></li>
+                                </ul>
+                                <strong>强烈建议将 U盘 或 TF卡 格式化为 ext4 文件系统</strong>
+                                <ul>
+                                    <li>* 部分盒子建议插到靠近电源的 USB 口</li>
+                                    <li>* 建议使用 Linux 自带的 fdisk 分区命令进行重新分区</li>
+                                    <li>* 也可以使用 mkfs.ext4 /dev/sd? 命令格式化</li>
+									<li>* (符号 ? 请自行匹配到对应的外置设备序号, 如 sda1 sdb1)</li>
+                                </ul>
+                            </div>
+
+                            <div class="col-md-6">
+                                <strong>手动操作 fdisk 分区和格式化外置储存设备</strong>
+                                <ul>
+                                    <li><pre class="brush: html">
+			    		umount -l /mnt/sda1	# 卸载分区 (根据情况修改, 有时并非 /mnt/sda1)
+			    		fdisk -l			# 查看磁盘情况
+			    		fdisk /dev/sda		# 进入命令行分区界面 (根据情况修改)
+			    		(注意, 这里是 sda 而不是 sda1)
+			    			输入 o 设置新分区为 msdos 格式
+			    			输入 n 建立新分区
+			    			接着输入 p 建立主分区
+			    			接着默认 2048 字节扇区头和自动的扇区尾
+			    			(按回车即默认)
+			    			输入 w 将上面的操作保存
+			    		mkfs.ext4 /dev/sda1	# 执行格式化
+			     		</pre>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+
+                    <section id="line9" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">直链下载与 BT 种子下载<hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Aria2 直链下载</strong>
+                                <ul>
+									<li>* 访问地址 http://IP/ariang</li>
+                                    <li>* 默认下载位置 /home/ubuntu/downloads</li>
+                                    <li>* 修改配置文件位置 /usr/local/aria2/aria2.conf</li>
+                                    <li>* 例如先在U盘建立一个文件夹 aria2</li>
+									<li>* <strong>更新 Tracker 列表(提速): 终端执行 update-tracker.sh</strong></li>
+                            <div class="col-md-6">
+                                <a href="images/upload/aria2.png" data-rel="prettyPhoto"><img src="images/upload/aria2.png" alt="" class="img-responsive img-thumbnail"></a>
+                            </div>
+                                </ul>
+
+                            </div>
+
+                            <div class="col-md-6">
+                                <strong>Transmission 种子下载</strong>
+                                <ul>
+                                    <li>* 请自行修改下载位置</li>
+                                    <li>* 默认登陆帐号 <strong>admin</strong> 密码 <strong>admin</strong></li>
+                            <div class="col-md-6">
+                                <a href="images/upload/transmission.png" data-rel="prettyPhoto"><img src="images/upload/transmission.png" alt="" class="img-responsive img-thumbnail"></a>
+                            </div>
+                                </ul>
+                            </div>
+                            <div class="col-md-12">
+							<br><strong>修改 Transmission 密码<strong>
+                            <li><pre class="brush: html">
+                            # 停止 Transmission 服务
+                            /etc/init.d/transmission-daemon stop
+                            # 修改密码
+                            # 编辑配置文件: vi /etc/transmission-daemon/settings.json
+							# 找到以下内容:
+                            "rpc-password": "{1e82c73f8f4b5c3ba4e2d94227fc19dc3442abf7nSWuZtsb",
+                            "rpc-port": 9091,
+                            "rpc-url": "/transmission/",
+                            "rpc-username": "admin",
+                            # 只需要修改 password、username 后面 "" 内的内容即可
+                            # 开启 Transmission 服务
+                            /etc/init.d/transmission-daemon start
+                            </pre>
+                            </div>
+                        </div>
+                        <!-- end row -->
+                    </section>
+                    <!-- end section -->
+                    <section id="line10" class="section">
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">Docker 容器使用基础教程 <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>安装 Docker 程序</strong>
+                                <p><strong>install-docker.sh</strong></p>
+                                <ul>
+                                    <li>1. 内置青龙面板的安装脚本</li>
+                                    <li><strong>install-qinglong.sh</strong></li>
+                                    <li>2. 内置了容器管理面板的安装脚本</li>
+                                    <li><strong>install-portainer.sh</strong></li>
+                                    <li>3. 内置了特斯拉监控程序的安装脚本</li>
+                                    <li><strong>install-teslamate1.sh</strong></li>
+                                    <li>4. 安装电影播放削刮器 (测试中)</li>
+                                    <li>Docker 很好用, 但并不是全部装上榨干就好, 而是适合自己用就好</li>
+                                    <li>如果你有好的建议, 请到论坛贴出你的脚本, 有机会被采纳</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Docker 使用基础</strong>
+                                <p>初学者可以尝试新建和删除 Docker 镜像和容器</p>
+                                <ul>
+                                    <li><pre class="brush: html">
+                                    	docker images		列出已安装的镜像
+                                    	docker ps			列出正在运行的容器
+                                    	docker ps -a		列出所有容器，包括未运行
+                                    	docker stop xxxx	停止 xxxx 容器
+                                    	docker rm xxxx		删除 xxxx 容器
+                                    	docker rmi xxxx		删除 xxxx 镜像
+                                    	</pre>
+                                    </li>
+                                </ul>
+                            </div>
+                            <ul>
+                                <li><pre class="brush: html">
+									# 安装 Docker 镜像前，设置安装位置到U盘
+									# 首先必须是使用 install-docker.sh 获得最新版
+									# 注意，请确保你的磁盘稳定在线，否则将会程序错误无法访问 docker .
+                                	systemctl stop docker				# 停止 Docker 服务
+                                	mkdir -p /mnt/sda1/docker			# 建立文件夹
+                                	chmod 777 -R /mnt/sda1/docker			# 赋予权限
+                                	vi /lib/systemd/system/docker.service	# 编辑配置文件
+                                	ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+                                	插上一句 --data-root /mnt/sda1/docker 变为如下:
+                                	ExecStart=/usr/bin/dockerd --data-root /mnt/sda1/docker -H fd:// --containerd=/run/containerd/containerd.sock
+                                	systemctl daemon-reload
+                                	systemctl start docker
+                                	</pre>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+
+                    <section id="line11" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">本地网盘 h5ai 应用 <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-md-12">
+
+                                <p>默认登陆用户名和密码 <strong>admin admin</strong>
+                                <br>存档位置: /var/www/html/files/
+                                <br>如果要更改存档位置到外接设备 /mnt/sda1/usb-files
+                                <br>则执行: ln -s /mnt/sda1/usb-files /var/www/html/files/usb-files
+                                <br>系统默认配置已经作了一个软链接示范
+                                <br>/home/ubuntu/files 创建软链接 /var/www/html/files/home
+                                <br>网盘系统可以直接播放音视频和查看文档内容
+                                <br>在文档名称前面打勾, 左上角的下载按钮, 可以直接将文档打包zip格式并浏览器下载
+                                <br><pre class="brush: html">
+                                mkdir -p /mnt/sda1/usb-files
+                                ln -s /mnt/sda1/usb-files /var/www/html/files/usb-files
+                                echo "## 这是页首显示" > /mnt/sda1/usb-files/_h5ai.header.md
+                                echo "## 这是页脚说明" > /mnt/sda1/usb-files/_h5ai.footer.md
+                                </pre>
+								<br><pre class="brush: html">
+								修改用户名和密码:
+								echo -n 'admin:' | tee /etc/nginx/passwords-h5ai.list
+								openssl passwd -apr1 | tee -a /etc/nginx/passwords-h5ai.list
+								nginx -s reload
+									</pre>
+									</p>
+
+                                <hr>
+
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+                    
+                    <section id="line12" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">文件管理器 FileBrowser <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-md-12">
+
+                                <p>默认登陆用户名和密码 <strong>admin admin</strong>
+                                <br>默认首页操作路径位置: /home/ubuntu/files
+                                <br>如果要更改操作路径位置，请参考下图：
+                                <br>设置--用户管理--编辑--目录范围（比如管理挂载盘/mnt/sda1）
+                                <img src="img/filebrowser.png">
+                                <br>
+                                <br>另外，建议这个文件管理器搭配 h5ai 做分享网盘系统，分享给家人的，和自己私密的文件进行分类，简直完美。
+									</p>
+
+                                <hr>
+
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+                    
+					<section id="line13" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">Alist云盘的应用 <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-md-12">
+
+                                <p>Alist云盘，一个支持多种存储，支持网页浏览和 WebDAV 的文件列表程序。
+                                <br>软件安装所在位置: /opt/alist/
+                                <br>默认登陆用户名和密码 <strong>admin admin123</strong>
+                                <br>新版的alist程序，为了方便内网穿透的用户在首页80端口即可访问，我们做了nginx的反代，将5244端口反代到80端口了。
+                                <br>使用内网DAV软件挂载的时候，在IP地址后面加 /alist 即可。
+                                <br>前后对比：
+                                <br><pre class="brush: html;">
+                                #前后对比：
+                                192.168.111.124   /dav   5244
+                                应该修改为
+                                192.168.111.124  /alist/dav   80 
+                                </pre>
+                                <br>详细使用教程请参考Alist官方文档
+                                <br>文档地址 <a href="https://alist.nn.ci/zh/" target="_blank">https://alist.nn.ci/zh/</a>
+                                <br>或论坛教程 <a href="https://bbs.histb.com/d/1590-alistxin-ban-shi-yong-zhu-yi-shi-xiang" target="_blank">https://bbs.histb.com/d/1590-alistxin-ban-shi-yong-zhu-yi-shi-xiang</a>
+
+                                </p>
+
+                                <hr>
+
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+					<section id="line14" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">觅思文档程序使用简介 <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-md-12">
+
+                                <p>利用 MrDoc 可以创建各类私有化部署的文档应用。
+                                <br>将知识按文集进行归类，无限层级文档，用在知识管理上，让知识不再碎片化和零散化.
+                                <br>软件安装所在位置: /opt/note/
+                                <br>默认登陆用户名和密码 <strong>test test</strong>
+                                
+                                <br>为方便系统还原后恢复原有的数据，提供备份和还原工具 mrdoc-tool 命令。
+                                <br>备份命令：mrdoc-tool -save
+                                <br>执行效果如下：
+                                <pre class="brush: html;">
+                                root@hi3798mv100:~# ./mrdoc-tool.sh -save
+                                备份完成！文件路径：/home/ubuntu/files/mrdoc-backup-aa438a.tar.gz ,请务必及时下载以防止丢失
+                                  下载方式：
+                                  1. 可进入首页的网盘，进入Home目录后点击备份文件进行下载
+                                  2. 可使用首页Alist云盘，点击"本地根目录"后按照文件路径找到文件下载
+                                  3. 可使用其他工具找到文件后下载
+                                root@hi3798mv100:~# 
+                                </pre>
+                                <br>执行还原命令前需要提前把原先下载好的备份文件重新上传到盒子中。
+                                <br>还原命令：mrdoc-tool -restore 你上传的备份文件路径
+                                <br>执行效果如下：
+                                <pre class="brush: html;">
+                                root@hi3798mv100:~# ./mrdoc-tool.sh -restore /home/ubuntu/files/mrdoc-backup-aa438a.tar.gz
+                                还原完成！
+                                root@hi3798mv100:~# 
+                                </pre>
+                                <br>详细使用教程请参考觅思文档官方手册。
+                                <br>文档地址 <a href="https://doc.mrdoc.pro/" target="_blank">https://doc.mrdoc.pro/</a></p>
+
+                                </p>
+
+                                <hr>
+
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+		
+					<section id="line15" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">Socks5 服务器配置 <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-md-4">
+                            	 <a href="images/upload/firefoxset.png" data-rel="prettyPhoto">
+                                <img src="images/upload/firefoxset.png" alt="" class="img-responsive img-thumbnail"></a>
+                                <h4>浏览器代理设置</h4>
+                                <p>打开设置-网络-代理, 按照上图设置, 保存</p>
+                            </div>
+                            <!-- end col -->
+
+                            <div class="col-md-4">
+                                <a href="images/upload/winset.png" data-rel="prettyPhoto">
+                                <img src="images/upload/winset.png" alt="" class="img-responsive img-thumbnail"></a>
+                                <h4>Windows 代理设置</h4>
+                                <p>打开 Windows 设置-网络-代理, 按照上图设置, 保存</p>
+                            </div>
+                            <!-- end col -->
+
+                            <div class="col-md-4">
+                                <a href="images/upload/iptest.png" data-rel="prettyPhoto"><img src="images/upload/iptest.png" alt="" class="img-responsive img-thumbnail"></a>
+                                <h4>查看是否上线</h4>
+                                <p>浏览器打开<a target="_blank" href="http://ip111.cn">在线检测IP</a>, 看到 IP 不同则成功</p>
+                            </div>
+                            <!-- end col -->
+
+                            <div class="col-md-12">
+                                <p>限于研究学习的目的, 需要自行准备节点！没有正确的节点配置文件是无法联通的。
+                                <br>安装下面的脚本后盒子打开了 Socks5 的代理服务功能, 端口号10808
+                                <br>你在浏览器或者系统自行设置通过盒子的IP<?php echo $lanip ?>代理 Socks5 上网即可</p>
+
+                        	<pre class="brush: html">
+				install-v2ray.sh --version v5.1.0		# 终端输入这句命令自行安装
+				systemctl status v2ray		# 查看运行状态是否正常
+				curl --socks5 127.0.0.1:10808 google.com  # 返回 301 字样则成功
+				install-v2ray.sh --remove	# 终端输入命令即可卸载 v2ray
+				# 节点配置文件在 /usr/local/etc/v2ray/config.json
+				# 注意：需要自行准备节点！没有正确的节点配置文件是无法联通的。
+                      	 	</pre>
+                               <div class="intro2 clearfix">
+                                                <p><i class="fa fa-exclamation-triangle"></i> 本功能仅作为学习以及测试使用, 禁止用于非法用途! 测试完毕请立即卸载!
+                                                </p>
+                               </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+                    
+					<section id="line16" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">系统更新和软件程序更新 <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p>20231201版之后，我们采用了自建deb源更新所有海纳思自创的程序。
+                                <br>意味着您可以通过更加简易的方法安装、更新、升级和卸载系统的各种软件和模块。
+                                <br>并且这种升级更新或卸载的方法是无损的，不影响您的程序和个人配置文件等。
+                                <br>作者提供了三个源地址，你可以通过以下命令切换其中的一个，以获得最佳下载速度：</p>
+								<pre class="brush: html">
+								echo "deb https://www.ecoo.top/update/repo/$(dpkg --print-architecture) histb main" > /etc/apt/sources.list.d/histb.list
+								echo "deb https://node.histb.com:9088/update/repo/$(dpkg --print-architecture) histb main" > /etc/apt/sources.list.d/histb.list
+								echo "deb https://dl.ecoo.top/update/repo/$(dpkg --print-architecture) histb main" > /etc/apt/sources.list.d/histb.list
+								#上面三句任选其一
+								apt-get update
+								apt-get upgrade
+								#备注:本官源gpg密钥
+								curl -fsSL https://www.ecoo.top/update/soft_init/histb.gpg |apt-key add -
+								</pre>
+                                <p><br>以下为部分程序deb列表</p>
+								<pre class="brush: html">
+								samba-histb
+								tailscale-histb
+								transmission-histb
+								ttyd-histb
+								typecho-histb
+								cronweb-histb
+								ddns-histb
+								filebrowser-histb
+								frpc-histb
+								h5ai-histb
+								</pre>
+								<p>意味着您可以根据个人喜好卸载和安装它们：</p>
+								<pre class="brush: html">
+								#比如卸载alist， 
+								apt purge alist-histb
+								#继续重新安装则
+								apt install alist-histb
+								</pre>
+								<p>此后的系统更新，apt-get update && apt-get upgrade 即可。</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+
+                    <section id="line17" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">版本历史 (Changelog) <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-md-12">
+
+                                <p>本操作系统基于 Ubuntu 20.04.6 LTS, 作者神雕，贡献者Xjm, MinaDee </p>
+
+                                <hr>
+
+                                <h4>更新日志</h4>
+				<iframe width="760" height="315" src="changeslog.html" frameborder="0" allowfullscreen></iframe>
+
+
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+
+                    <section id="line18" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">Copyright and License <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p>系统内核及运行设计版权归神雕 teasiu@ecoo.top, 任何人使用或移植借鉴须注明出自 www.ecoo.top</p>
+                                <p>未经作者授权, 不得将系统用于盈利售卖, 不得用于衍生的任何软件变相收费否则视为侵权行为! 一旦被举报, 必将追究!</p>
+                                <p>官方网站 <a href=" https://www.ecoo.top" target="_blank">www.ecoo.top</a></p>
+
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                    </section>
+                    <!-- end section -->
+                </div>
+                <!-- // end .col -->
+
+            </div>
+            <!-- // end .row -->
+
+        </div>
+        <!-- // end container -->
+
+    </div>
+    <!-- end wrapper -->
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/retina.js"></script>
+    <script src="js/jquery.fitvids.js"></script>
+    <script src="js/wow.js"></script>
+    <script src="js/jquery.prettyPhoto.js"></script>
+
+    <!-- CUSTOM PLUGINS -->
+    <script src="js/custom.js"></script>
+    <script src="js/main.js"></script>
+
+    <script src="js/syntax-highlighter/scripts/shCore.js"></script>
+    <script src="js/syntax-highlighter/scripts/shBrushXml.js"></script>
+    <script src="js/syntax-highlighter/scripts/shBrushCss.js"></script>
+    <script src="js/syntax-highlighter/scripts/shBrushJScript.js"></script>
+
+</body>
+
+</html>
