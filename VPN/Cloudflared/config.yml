@@ -1,0 +1,12 @@
+tunnel: e38dc443-a2d5-4d3f-8ee8-89299d857c35
+credentials-file: /root/.cloudflared/e38dc443-a2d5-4d3f-8ee8-89299d857c35.json
+
+ingress:
+  # HTTP服务，通过80端口
+  - hostname: ltopc.cnlt.dpdns.org
+    service: http://127.0.0.1
+  # v2ray，通过2017端口
+  - hostname: ltopcv2ray.cnlt.dpdns.org
+    service: http://127.0.0.1:2017
+    
+  - service: http_status:404
