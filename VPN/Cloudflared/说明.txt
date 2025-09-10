@@ -1,0 +1,15 @@
+cloudflared login 
+
+cloudflared tunnel create ltwrt001
+cp /root/.cloudflared/* /etc/cloudflared/
+
+
+cloudflared tunnel route dns ltwrt001 ltwrt001.545818.xyz
+
+nano /etc/init.d/cloudflared
+
+rm /usr/bin/cloudflared
+wget -O /usr/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/download/2025.8.1/cloudflared-linux-arm
+chmod +x /usr/bin/cloudflared
+
+/usr/bin/cloudflared --no-autoupdate --config /etc/cloudflared/config.yml tunnel run
