@@ -1,1 +1,84 @@
+修改 /etc/rc.local：在该文件中添加以下内容：
 
+ifconfig eth0 hw ether ce:57:45:5f:97:3f
+
+opkg update
+opkg install openvpn-openssl
+
+如果你还需要在 OpenWrt 的 LuCI 网页界面中进行配置，还需要安装 LuCI 的 OpenVPN 插件：
+opkg install luci-app-openvpn
+
+/etc/init.d/openvpn start
+/etc/init.d/openvpn stop
+/etc/init.d/openvpn restart
+/etc/init.d/openvpn enable
+openvpn --config /etc/openvpn/mikrotik.conf
+
+在后台运行：
+通常，这个命令会占用终端。如果你想让它在后台运行，可以在命令末尾加上 &。
+Bash
+openvpn --config /etc/openvpn/vpn.conf &
+
+让 OpenWrt 在开机时自动启动 openvpn --config /etc/openvpn/mikrotik.conf 这个命令，有几种常见的方法。最推荐的是使用 OpenWrt 标准的自启动脚本，但你也可以将命令直接添加到启动脚本中。
+
+方法一：使用 OpenWrt 配置文件（推荐）
+这是最标准和稳健的方法。它利用 OpenWrt 的 procd 守护进程来管理服务，可以确保 OpenVPN 进程在系统启动后稳定运行，并且支持日志记录和重启。
+
+编辑 OpenVPN 配置文件
+
+使用 uci 命令或直接编辑 /etc/config/openvpn 文件。
+
+确保你的配置中有一个实例，并且指向了正确的配置文件。
+
+例如，如果你的 /etc/config/openvpn 文件中没有配置，你可以添加以下内容：
+
+config openvpn 'mikrotik'
+    option enabled '1'
+    option config '/etc/openvpn/mikrotik.conf'
+'mikrotik' 是这个 OpenVPN 实例的名称，你可以自定义。
+
+option enabled '1' 是关键，它告诉系统在启动时自动启用这个实例。
+
+option config '/etc/openvpn/mikrotik.conf' 指向你的配置文件。
+
+启用服务
+
+在终端中执行以下命令，让系统将这个配置添加到开机启动项中：
+
+Bash
+
+/etc/init.d/openvpn enable
+这样，procd 就会在下次开机时自动启动这个名为 mikrotik 的 OpenVPN 实例。
+
+方法二：修改 /etc/rc.local 文件
+如果你不想使用标准的 OpenWrt 服务管理，可以将命令直接写入 /etc/rc.local 文件。这个文件在系统完成所有初始化后执行。
+
+编辑 rc.local 文件
+
+使用 vi 或 nano 编辑器打开文件：
+
+Bash
+
+vi /etc/rc.local
+添加启动命令
+
+在 exit 0 这一行之前，添加你的 OpenVPN 启动命令，并在命令末尾加上 &，让它在后台运行。
+
+Bash
+
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file doesn't do anything.
+
+openvpn --config /etc/openvpn/mikrotik.conf &
+
+exit 0
+保存并退出
+
+在 vi 中，按 ESC，然后输入 :wq 并回车保存退出。
+
+重启路由器后，这个命令就会自动执行。
+
+总结
+推荐使用方法一，因为它更符合 OpenWrt 的设计，可以更好地管理服务，例如使用 /etc/init.d/openvpn status 查看状态。
+
+方法二 简单直接，但如果你需要管理或排查问题，它不如方法一方便。

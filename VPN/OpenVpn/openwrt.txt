@@ -1,0 +1,35 @@
+
+设置自动获取IP
+uci set network.lan.proto='dhcp'
+uci commit network
+/etc/init.d/network restart
+
+
+cloudflared tunnel route dns shopc sh.cnlt.dpdns.org
+
+cloudflared tunnel route dns shopc shssh.cnlt.dpdns.org
+
+
+
+ cloudflared tunnel create shopc
+2025-08-12T06:43:28Z ERR Configuration file /etc/cloudflared/config.yml was empty
+Tunnel credentials written to /root/.cloudflared/a45aa70d-07f6-4fa3-a170-9a8e6f635dec.json. cloudflared chose this file based on where your origin certificate was found. Keep this file secret. To revoke these credentials, delete the tunnel.
+
+Created tunnel shopc with id a45aa70d-07f6-4fa3-a170-9a8e6f635dec
+2025-08-12T06:43:30Z WRN Your version 2025.5.0 is outdated. We recommend upgrading it to 2025.8.0
+
+
+
+cat /etc/config/network | grep -A 10 "config interface
+
+mount | grep " / "
+mount -o remount,rw /
+
+二、正确配置 Overlay 挂载（保证可写根文件系统）
+修改 /etc/config/fstab，添加 overlay 配置，比如：
+
+config 'mount'
+        option target '/overlay'
+        option uuid 'ff313567-e9f1-5a5d-9895-3ba130b4a864'
+        option enabled '1'
+

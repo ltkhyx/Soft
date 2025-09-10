@@ -1,0 +1,3 @@
+config openvpn 'openvpn'
+    option enabled '1'
+    option config '/etc/openvpn/openvpn.conf'
